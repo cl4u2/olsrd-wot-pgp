@@ -1,0 +1,106 @@
+
+
+Web of Trust OLSR 0.1 implementation notes
+(c) Claudio Pisa (clauz at ninux dot org) 2008, modelled from the 
+secure OLSR plugin (c) Andreas Tønnesen 2004
+
+This document contains information on how to
+use the Web of Trust (WoT) OLSR plugin with the Linux version of the UniK 
+OLSR daemon.
+
+The WoT plugin provides authentication and integrity of OLSR packets using 
+PGP (GnuPG) signatures. The level of trust associated to received packets'
+signatures is used to populate multiple routing tables.
+
+
+REQUIREMENTS
+
+  GNU Privacy Guard (GnuPG): 
+            http://www.gnupg.org
+  GnuPG Made Easy (GPGME): 
+            http://www.gnupg.org/related_software/gpgme/index.en.html 
+  ibgpg-error:
+            http://www.gnupg.org/related_software/libraries.en.html
+  OpenSSL (optional): 
+            http://www.openssl.org/
+
+COMPILING
+
+  To compile simply do:
+  # make
+  This compiles the local MD5 function and the plugin has
+  no OpenSSL external dependency.
+  If you want the plugin to use SHA-1 using the openssl libs
+  do:
+  make USE_OPENSSL=1 
+
+INSTALLING
+
+  To install:
+  # make install
+
+  This will run ldconfig to update the dynamic linker.
+  It might take a while.
+
+USAGE
+
+  To make olsrd load the Web of Trust OLSR plugin add the
+  following in the olsrd configuration file:
+
+  LoadPlugin "olsrd_wot.so.0.1"
+  {
+  	PlParam	"Keyname" "node@ninux.org"
+  	PlParam "gpghomedir" "/root/.gnupg"
+  	PlParam "gpgfilename" "/usr/bin/gpg"
+  	PlParam "passphrase" "node"
+  	#PlParam "passphrasehelper" "/root/passhelper.sh"
+  
+  	PlParam "ipowner" "172.20.0.9 source@ninux.org"
+  	PlParam "ipowner" "172.20.0.17 source@ninux.org"
+  	PlParam "ipowner" "172.20.0.18 node2@ninux.org"
+  	PlParam "ipowner" "172.20.0.25 node2@ninux.org"
+  	PlParam "ipowner" "172.20.0.1 node2@ninux.org"
+  }
+  
+  The parameters are here explained: 
+  Keyname          - the e-mail or name associated to the private key used  
+                     to sign the packets;
+  gpghomedir       - the gnupg home directory;
+  gpgfilename      - the full path of the gpg binary;
+  passphrase       - the passphrase needed to use the private key;
+  passphrasehelper - if you don't want to provide a cleartext passphrase
+                     you may provide the full path of a program that outputs
+                     the passphrase;
+  ipowner          - specify an IP->e-mail association in order to retrieve
+                     the appropriate public key associated to the sender
+                     of a packet. At the moment only one e-mail can be
+                     associated to an IP address.
+  
+  Also some OLSR parameters should be changed and tuned to match your network
+  topology and settings. 
+  Some recommended values are:
+   HelloInterval 6.0
+   HelloValidityTime 60.0
+   TcInterval 15.0
+   TcValidityTime 75.0
+   MidInterval 5.0
+   MidValidityTime 75.0
+   HnaInterval 5.0
+   HnaValidityTime 75.0
+
+  To get started with GnuPG, generate your private and public keys by typing
+    # gpg --gen-key
+  Then export public keys using
+    # gpg --export --armor > exportedkeys
+  And let your network neighbors import them using
+    # gpg --import exportedkeys
+
+  Add the following rules in order to route received packets using the most
+  trusted route available:
+    # ip rule add from all priority 30010 table 210 
+    # ip rule add from all priority 30020 table 220
+  Where table 210 contains fully trusted entries, and table 220 contains marginally 
+  as well as fully trusted entries. Table main (254) contains all routes.
+
+  
+  

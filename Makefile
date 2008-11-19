@@ -148,7 +148,7 @@ else
 ifeq ($(OS),win32)
 SUBDIRS := dot_draw httpinfo mini pgraph secure txtinfo
 else
-SUBDIRS := bmf dot_draw dyn_gw dyn_gw_plain httpinfo mini nameservice pgraph secure txtinfo
+SUBDIRS := bmf dot_draw dyn_gw dyn_gw_plain httpinfo mini nameservice pgraph secure txtinfo wot
 endif
 endif
 
@@ -203,6 +203,11 @@ secure:
 		$(MAKECMD) -C lib/secure clean
 		$(MAKECMD) -C lib/secure
 		$(MAKECMD) -C lib/secure DESTDIR=$(DESTDIR) install
+
+wot:
+		$(MAKECMD) -C lib/wot clean
+		$(MAKECMD) -C lib/wot
+		$(MAKECMD) -C lib/wot DESTDIR=$(DESTDIR) install
 
 pgraph:
 		$(MAKECMD) -C lib/pgraph clean
