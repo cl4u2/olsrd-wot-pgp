@@ -12,6 +12,7 @@ The WoT plugin provides authentication and integrity of OLSR packets using
 PGP (GnuPG) signatures. The level of trust associated to received packets'
 signatures is used to populate multiple routing tables.
 
+http://hg.ninux.org/olsrd-ninux-messy/attachment/wiki/WikiStart/Tesi_di_Claudio_Pisa_rc6_Trusted_Routing_In_OLSR_MANETs.pdf
 
 REQUIREMENTS
 
